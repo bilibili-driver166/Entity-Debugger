@@ -1,0 +1,4 @@
+{
+  "item.entity-debugger.entity_debug_stick": "Entity Debug Stick",
+  "text.entity_debug_stick.desc.1": "Right-click on a entity to open the entity's NBT debugging interface"
+}
