@@ -83,7 +83,7 @@ public class EntityDebugScreen extends Screen {
     private static final int HEADER_HEIGHT = 45;
 
     public EntityDebugScreen(Entity entity) {
-        super(Text.literal("实体NBT编辑器"));
+        super(Text.translatable("entity_debugger.screen.title"));
         this.entity = entity;
     }
 
@@ -97,20 +97,20 @@ public class EntityDebugScreen extends Screen {
         createPaginationControls();
 
         // 添加NBT按钮 - 使用更现代的风格
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("✚ 添加NBT"), button -> openAddNbtDialog())
+        this.addDrawableChild(ButtonWidget.builder(Text.translatable("entity_debugger.screen.add_nbt"), button -> openAddNbtDialog())
                 .dimensions(width - 110, 15, 90, 24)
-                .tooltip(Tooltip.of(Text.literal("添加新的NBT标签")))
+                .tooltip(Tooltip.of(Text.translatable("entity_debugger.screen.add_nbt.tooltip")))
                 .build());
 
         // 保存所有按钮 - 使用强调色
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("✔ 保存所有"), button -> {
+        this.addDrawableChild(ButtonWidget.builder(Text.translatable("entity_debugger.screen.save_all"), button -> {
                     if (activeEditor != null) {
                         saveEditedValue();
                     }
                     saveAllChanges();
                 })
                 .dimensions(width - 110, 45, 90, 24)
-                .tooltip(Tooltip.of(Text.literal("保存所有修改")))
+                .tooltip(Tooltip.of(Text.translatable("entity_debugger.screen.save_all.tooltip")))
                 .build());
 
         // 加载数据
@@ -162,7 +162,8 @@ public class EntityDebugScreen extends Screen {
         context.fill(15, 15, width - 15, 45, HIGHLIGHT_COLOR);
 
         // 标题文本
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal("实体NBT编辑器").formatted(Formatting.BOLD),
+        context.drawCenteredTextWithShadow(textRenderer,
+                Text.translatable("entity_debugger.screen.title").formatted(Formatting.BOLD),
                 width / 2, 25, TEXT_COLOR);
 
         // 实体信息
@@ -174,7 +175,7 @@ public class EntityDebugScreen extends Screen {
         // 如果有未保存的修改，显示提示
         if (hasUnsavedChanges) {
             context.drawTextWithShadow(textRenderer,
-                    Text.literal("有未保存的修改").formatted(Formatting.YELLOW),
+                    Text.translatable("entity_debugger.screen.unsaved_changes").formatted(Formatting.YELLOW),
                     width - 120, 75, WARNING_COLOR);
         }
     }
@@ -223,13 +224,13 @@ public class EntityDebugScreen extends Screen {
         context.fill(20, height - 40, width - 20, height - 15, HIGHLIGHT_COLOR);
 
         // 分页文本
-        String pageInfo = String.format("第 %d/%d 页", currentPage, getTotalPages());
+        String pageInfo = Text.translatable("entity_debugger.screen.page_info", currentPage, getTotalPages()).getString();
         context.drawCenteredTextWithShadow(textRenderer, pageInfo,
                 width / 2, height - 30, TEXT_COLOR);
     }
 
     private void openAddNbtDialog() {
-        Screen addNbtScreen = new Screen(Text.literal("添加NBT")) {
+        Screen addNbtScreen = new Screen(Text.translatable("entity_debugger.screen.add_dialog.title", getTypeName(selectedType))) {
             // 尺寸常量
             private static final int DIALOG_WIDTH = 320;
             private static final int DIALOG_HEIGHT = 220; // 增加高度避免挤压
@@ -250,14 +251,14 @@ public class EntityDebugScreen extends Screen {
 
             @Override
             protected void init() {
-                // 类型按钮（上移5px留出空间）
-                addDrawableChild(ButtonWidget.builder(Text.literal("字节"), b -> updateType(NbtElement.BYTE_TYPE))
+                // 类型按钮
+                addDrawableChild(ButtonWidget.builder(Text.translatable("entity_debugger.type.byte"), b -> updateType(NbtElement.BYTE_TYPE))
                         .dimensions(getDialogX() + PADDING, getTypeButtonsY() - 5, 80, 20).build());
 
-                addDrawableChild(ButtonWidget.builder(Text.literal("整数"), b -> updateType(NbtElement.INT_TYPE))
+                addDrawableChild(ButtonWidget.builder(Text.translatable("entity_debugger.type.int"), b -> updateType(NbtElement.INT_TYPE))
                         .dimensions(getDialogX() + PADDING + 100, getTypeButtonsY() - 5, 80, 20).build());
 
-                addDrawableChild(ButtonWidget.builder(Text.literal("小数"), b -> updateType(NbtElement.FLOAT_TYPE))
+                addDrawableChild(ButtonWidget.builder(Text.translatable("entity_debugger.type.float"), b -> updateType(NbtElement.FLOAT_TYPE))
                         .dimensions(getDialogX() + PADDING + 200, getTypeButtonsY() - 5, 80, 20).build());
 
                 // 键名输入框（下移10px）
@@ -268,7 +269,7 @@ public class EntityDebugScreen extends Screen {
                         20,
                         Text.empty()
                 );
-                addKeyField.setPlaceholder(Text.literal("输入键名"));
+                addKeyField.setPlaceholder(Text.translatable("entity_debugger.screen.add_dialog.key_placeholder"));
                 addDrawableChild(addKeyField);
 
                 // 值输入框
@@ -283,10 +284,10 @@ public class EntityDebugScreen extends Screen {
                 addDrawableChild(addValueField);
 
                 // 操作按钮
-                addDrawableChild(ButtonWidget.builder(Text.literal("取消"), b -> close())
+                addDrawableChild(ButtonWidget.builder(Text.translatable("entity_debugger.screen.add_dialog.cancel"), b -> close())
                         .dimensions(getDialogX() + PADDING, getButtonsY(), 120, 24).build());
 
-                addDrawableChild(ButtonWidget.builder(Text.literal("确认"), b -> trySubmit())
+                addDrawableChild(ButtonWidget.builder(Text.translatable("entity_debugger.screen.add_dialog.confirm"), b -> trySubmit())
                         .dimensions(getDialogX() + DIALOG_WIDTH - PADDING - 120, getButtonsY(), 120, 24).build());
             }
 
@@ -304,20 +305,17 @@ public class EntityDebugScreen extends Screen {
 
                 // 标题
                 context.drawCenteredTextWithShadow(textRenderer,
-                        Text.literal("添加新NBT (" + getTypeName(selectedType) + ")"),
+                        Text.translatable("entity_debugger.screen.add_dialog.title", getTypeName(selectedType)),
                         x + DIALOG_WIDTH/2, getTitleY(), 0xFFFFFF);
 
-                // 标签（精确调整位置）
-                context.drawText(textRenderer, "键名:",
-                        x + PADDING,
-                        getKeyLabelY(),
-                        0xAAAAAA, false);
+                // 标签
+                context.drawText(textRenderer, Text.translatable("entity_debugger.screen.add_dialog.key"),
+                        x + PADDING, getKeyLabelY(), 0xAAAAAA, false);
 
-                context.drawText(textRenderer, "值:",
-                        x + PADDING,
-                        getValueLabelY(),
-                        0xAAAAAA, false);
+                context.drawText(textRenderer, Text.translatable("entity_debugger.screen.add_dialog.value"),
+                        x + PADDING, getValueLabelY(), 0xAAAAAA, false);
 
+                // 重要：必须调用super.render()来渲染所有子组件
                 super.render(context, mouseX, mouseY, delta);
             }
 
@@ -330,7 +328,7 @@ public class EntityDebugScreen extends Screen {
 
             private boolean validateInput() {
                 if (addKeyField.getText().isEmpty()) {
-                    addKeyField.setMessage(Text.literal("键名不能为空!").formatted(Formatting.RED));
+                    addKeyField.setMessage(Text.translatable("entity_debugger.message.key_empty").formatted(Formatting.RED));
                     return false;
                 }
 
@@ -345,7 +343,7 @@ public class EntityDebugScreen extends Screen {
                         case NbtElement.FLOAT_TYPE -> Float.parseFloat(addValueField.getText());
                     }
                 } catch (NumberFormatException e) {
-                    addValueField.setMessage(Text.literal("无效的" + getTypeName(selectedType) + "值!")
+                    addValueField.setMessage(Text.translatable("entity_debugger.message.invalid_value", getTypeName(selectedType))
                             .formatted(Formatting.RED));
                     return false;
                 }
@@ -358,22 +356,17 @@ public class EntityDebugScreen extends Screen {
             }
 
             private void updateValueHint() {
-                String hint = switch(selectedType) {
-                    case NbtElement.BYTE_TYPE -> "0-255 或 true/false";
-                    case NbtElement.INT_TYPE -> "整数 (如 123)";
-                    case NbtElement.FLOAT_TYPE -> "小数 (如 3.14)";
-                    default -> "输入值";
-                };
+                String hint = Text.translatable("entity_debugger.screen.add_dialog.value_hint." + selectedType).getString();
                 addValueField.setPlaceholder(Text.literal(hint));
             }
 
-            private String getTypeName(byte type) {
-                return switch(type) {
-                    case NbtElement.BYTE_TYPE -> "字节";
-                    case NbtElement.INT_TYPE -> "整数";
-                    case NbtElement.FLOAT_TYPE -> "小数";
-                    default -> "未知";
-                };
+            private String getTypeName(byte nbtType) {
+                return Text.translatable("nbt.type." + switch (nbtType) {
+                    case NbtElement.BYTE_TYPE -> "byte";
+                    case NbtElement.INT_TYPE -> "int";
+                    case NbtElement.FLOAT_TYPE -> "float";
+                    default -> "unknown";
+                }, nbtType).getString();
             }
 
             // ... (其他方法保持不变，包括trySubmit/validateInput等)
@@ -386,7 +379,7 @@ public class EntityDebugScreen extends Screen {
     }
     private void openListEditor(NbtList list, String key) {
         NbtList workingCopy = list.copy();
-        client.setScreen(new Screen(Text.literal("编辑列表: "+key)) {
+        client.setScreen(new Screen(Text.translatable("entity_debugger.screen.list_editor.title", key, list.size())) {
             private NbtListEditorWidget editor;
             private ButtonWidget formatToggle;
             private boolean prettyFormat = true;
@@ -397,10 +390,10 @@ public class EntityDebugScreen extends Screen {
 
                 // 添加格式化切换按钮
                 this.formatToggle = ButtonWidget.builder(
-                        Text.literal(prettyFormat ? "原始格式" : "美化格式"),
+                        Text.translatable(prettyFormat ? "entity_debugger.screen.list_editor.raw_format" : "entity_debugger.screen.list_editor.pretty_format"),
                         button -> {
                             prettyFormat = !prettyFormat;
-                            formatToggle.setMessage(Text.literal(prettyFormat ? "原始格式" : "美化格式"));
+                            formatToggle.setMessage(Text.translatable(prettyFormat ? "entity_debugger.screen.list_editor.raw_format" : "entity_debugger.screen.list_editor.pretty_format"));
                             updateEditorContent();
                         }
                 ).dimensions(width - 120, 10, 100, 20).build();
@@ -418,10 +411,11 @@ public class EntityDebugScreen extends Screen {
                 addDrawableChild(editor);
 
                 // 取消按钮
-                addDrawableChild(ButtonWidget.builder(Text.literal("取消"), button -> returnToMainScreen()).dimensions(width/2 - 105, height - 50, 100, 20).build());
+                addDrawableChild(ButtonWidget.builder(Text.translatable("entity_debugger.screen.list_editor.cancel"), button -> returnToMainScreen())
+                        .dimensions(width/2 - 105, height - 50, 100, 20).build());
 
                 // 保存按钮
-                addDrawableChild(ButtonWidget.builder(Text.literal("保存"), button -> {
+                addDrawableChild(ButtonWidget.builder(Text.translatable("entity_debugger.screen.list_editor.save"), button -> {
                     try {
                         NbtElement parsed = parseInputValue(editor.getText(), NbtElement.LIST_TYPE);
                         if (parsed instanceof NbtList) {
@@ -430,7 +424,7 @@ public class EntityDebugScreen extends Screen {
                             returnToMainScreen();
                         }
                     } catch (Exception e) {
-                        showError("解析错误: " + e.getMessage());
+                        showError(Text.translatable("entity_debugger.message.parse_error", e.getMessage()).getString());
                     }
                 }).dimensions(width/2 + 5, height - 50, 100, 20).build());
             }
@@ -446,7 +440,7 @@ public class EntityDebugScreen extends Screen {
                 // 标题栏
                 context.fill(10, 10, width - 10, 40, HIGHLIGHT_COLOR);
                 context.drawCenteredTextWithShadow(textRenderer,
-                        "编辑列表: " + key + " (" + list.size() + "个元素)",
+                        Text.translatable("entity_debugger.screen.list_editor.title", key, list.size()),
                         width / 2, 20, TEXT_COLOR);
 
                 // 编辑器背景
@@ -454,7 +448,7 @@ public class EntityDebugScreen extends Screen {
 
                 // 帮助文本
                 context.drawText(textRenderer,
-                        "使用标准NBT格式 | 上下箭头换行 | 括号自动高亮",
+                        Text.translatable("entity_debugger.screen.list_editor.help"),
                         20, height - 30, SECONDARY_TEXT_COLOR, false);
 
                 super.render(context, mouseX, mouseY, delta);
@@ -473,7 +467,7 @@ public class EntityDebugScreen extends Screen {
                 if (!workingCopy.equals(list)) {
                     modifiedValues.put(key, workingCopy.copy());
                     hasUnsavedChanges = true;
-                    showSuccess("列表修改已暂存");
+                    showSuccess(Text.translatable("entity_debugger.message.list_changes_staged").getString());
                 }
                 // 返回到主编辑界面
                 client.setScreen(EntityDebugScreen.this);
@@ -524,12 +518,11 @@ public class EntityDebugScreen extends Screen {
 
     private void addNewNbtEntry(String key, String value) {
         if (key.isEmpty()) {
-            showError("键名不能为空");
+            showError(Text.translatable("entity_debugger.message.key_empty").getString());
             return;
         }
-
         if (nbtMap.containsKey(key)) {
-            showError("键名已存在: " + key);
+            showError(Text.translatable("entity_debugger.message.key_exists", key).getString());
             return;
         }
 
@@ -547,7 +540,7 @@ public class EntityDebugScreen extends Screen {
             // 更新UI但不立即保存到实体
             updateVisibleItems();
 
-            showSuccess("添加成功: " + key);
+            showSuccess(Text.translatable("entity_debugger.message.add_success", key).getString());
         } catch (InvalidNbtFormatException e) {
             showError(e.getMessage());
         }
@@ -768,27 +761,27 @@ public class EntityDebugScreen extends Screen {
         int buttonY = height - 37;
 
         // 前一页按钮
-        this.prevButton = ButtonWidget.builder(Text.literal("←"), btn -> {
+        this.prevButton = ButtonWidget.builder(Text.translatable("entity_debugger.screen.previous_page"), btn -> {
                     cleanupEditing();
                     currentPage = Math.max(1, currentPage - 1);
                     updateVisibleItems();
                 })
                 .dimensions(startX, buttonY, buttonWidth, buttonHeight)
-                .tooltip(Tooltip.of(Text.literal("上一页")))
+                .tooltip(Tooltip.of(Text.translatable("entity_debugger.screen.previous_page.tooltip")))
                 .build();
 
         // 页码文本位置
         int textX = startX + buttonWidth + spacing/2;
 
         // 后一页按钮
-        this.nextButton = ButtonWidget.builder(Text.literal("→"), btn -> {
+        this.nextButton = ButtonWidget.builder(Text.translatable("entity_debugger.screen.next_page"), btn -> {
                     cleanupEditing();
                     currentPage = Math.min(getTotalPages(), currentPage + 1);
                     updateVisibleItems();
                 })
-                .dimensions(textX + textRenderer.getWidth("第1/1页") + spacing/2,
+                .dimensions(textX + textRenderer.getWidth(Text.translatable("entity_debugger.screen.page_info", 1, 1).getString()) + spacing/2,
                         buttonY, buttonWidth, buttonHeight)
-                .tooltip(Tooltip.of(Text.literal("下一页")))
+                .tooltip(Tooltip.of(Text.translatable("entity_debugger.screen.next_page.tooltip")))
                 .build();
 
         addDrawableChild(prevButton);
@@ -877,51 +870,50 @@ public class EntityDebugScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // 先检查是否点击了UI组件（包括保存按钮）
         if (super.mouseClicked(mouseX, mouseY, button)) {
             return true;
         }
 
-        // 先处理下拉框的点击（如果存在活动下拉框）
+        // 处理下拉框点击
         if (activeDropdown != null && activeDropdown.parentMouseClicked(mouseX, mouseY, button)) {
             return true;
         }
 
-        // 如果点击了保存按钮区域，不再处理编辑
-        if (mouseX >= width - 100 && mouseX <= width - 20 &&
-                mouseY >= 45 && mouseY <= 65) {
-            return true;
+        // 检查是否点击了保存按钮区域 - 先于NBT条目检查
+        if (mouseX >= width - 110 && mouseX <= width - 20 &&
+                mouseY >= 15 && mouseY <= 69) { // 覆盖添加NBT和保存所有按钮区域
+            // 让按钮正常处理点击
+            return false;
         }
 
-        // 如果点击了非编辑区域，清理所有编辑框和下拉框
-        if (button == 0 && !isMouseOverEditor(mouseX, mouseY)) {
-            clearActiveEditors();
-            if (activeDropdown != null) {
-                activeDropdown.setExpanded(false);
-                activeDropdown = null;
-            }
-            return true; // 阻止进一步处理
-        }
+        // 检查是否点击了NBT条目区域
+        int startY = HEADER_HEIGHT + 15;
+        int endY = startY + itemsPerPage * ENTRY_HEIGHT;
 
-        if (button == 0) {
-            int clickedIndex = getClickedIndex(mouseX, mouseY);
-            if (clickedIndex >= 0) {
+        if (mouseY >= startY && mouseY <= endY &&
+                mouseX >= MARGIN + PANEL_PADDING &&
+                mouseX <= width - MARGIN - PANEL_PADDING) {
+
+            int clickedIndex = (int) ((mouseY - startY) / ENTRY_HEIGHT);
+            if (clickedIndex >= 0 && clickedIndex < itemsPerPage) {
                 startEditing(clickedIndex);
                 return true;
             }
         }
 
-        if (activeEditor != null && activeEditor.isMouseOver(mouseX, mouseY)) {
-            // 允许编辑器内部处理点击（选择文本等）
-            boolean handled = activeEditor.mouseClicked(mouseX, mouseY, button);
-
-            // 只在点击编辑器外部时保存
-            if (!handled && button == 0) {
-                saveEditedValue();
-            }
+        // 如果点击了非编辑区域且当前有活动的编辑器，保存并清理
+        if (button == 0 && activeEditor != null && !activeEditor.isMouseOver(mouseX, mouseY)) {
+            saveEditedValue(); // 尝试保存当前编辑
             return true;
         }
 
-        return super.mouseClicked(mouseX, mouseY, button);
+        // 如果点击了分页按钮区域，让分页按钮处理
+        if (mouseY >= height - 40 && mouseY <= height - 15) {
+            return false;
+        }
+
+        return false;
     }
 
     // 添加辅助方法
@@ -994,27 +986,28 @@ public class EntityDebugScreen extends Screen {
         int startY = HEADER_HEIGHT + 15;
         int yPos = startY + relativeIndex * ENTRY_HEIGHT;
 
-        // 计算键名宽度
-        int keyWidth = textRenderer.getWidth(editingKey);
+        // 计算键名宽度 - 添加额外边距
+        int keyWidth = textRenderer.getWidth(editingKey) + 15;
 
-        // 计算编辑器位置和大小
-        int editorX = MARGIN + PANEL_PADDING + 5 + keyWidth + 15;
-        int editorWidth = width - editorX - MARGIN - PANEL_PADDING - 5;
+        // 计算编辑器位置和大小 - 确保有足够空间
+        int editorX = MARGIN + PANEL_PADDING + 5 + keyWidth;
+        int editorWidth = width - editorX - MARGIN - PANEL_PADDING - 20; // 增加右边距
+
+        // 确保编辑器宽度足够
+        if (editorWidth < 100) {
+            editorWidth = 100;
+        }
 
         // 特殊处理布尔值 - 使用下拉框
         if (value.getType() == NbtElement.BYTE_TYPE &&
                 (value.equals(NbtByte.ONE) || value.equals(NbtByte.ZERO))) {
             // 创建下拉框
             DropdownWidget dropdown = new DropdownWidget(
-                    this, // 传入当前屏幕实例
-                    editorX,
-                    yPos,
-                    editorWidth,
-                    ENTRY_HEIGHT - 2,
-                    Text.literal("选择布尔值"),
+                    this, editorX, yPos, editorWidth, ENTRY_HEIGHT - 2,
+                    Text.translatable("entity_debugger.screen.boolean_dropdown"),
                     List.of(
-                            new DropdownWidget.Option(Text.literal("true"), NbtByte.ONE),
-                            new DropdownWidget.Option(Text.literal("false"), NbtByte.ZERO)
+                            new DropdownWidget.Option(Text.translatable("entity_debugger.screen.true"), NbtByte.ONE),
+                            new DropdownWidget.Option(Text.translatable("entity_debugger.screen.false"), NbtByte.ZERO)
                     ),
                     value.equals(NbtByte.ONE) ? 0 : 1
             );
@@ -1023,9 +1016,9 @@ public class EntityDebugScreen extends Screen {
                 modifiedValues.put(editingKey, selected.value());
                 hasUnsavedChanges = true;
                 syncToEntity(editingKey, selected.value());
-                activeDropdown = null; // 选择后清除下拉框引用
-                clearActiveEditors(); // 清理编辑状态
-                showSuccess("布尔值已更新: " + editingKey);
+                activeDropdown = null;
+                clearActiveEditors();
+                showSuccess(Text.translatable("entity_debugger.message.boolean_updated", editingKey).getString());
             });
 
             addDrawableChild(dropdown);
@@ -1035,13 +1028,10 @@ public class EntityDebugScreen extends Screen {
         }
 
         // 其他类型保持原样
+        // 文本编辑器
         activeEditor = new TextFieldWidget(
-                textRenderer,
-                editorX,
-                yPos,
-                editorWidth,
-                ENTRY_HEIGHT - 2,
-                Text.literal("编辑: " + editingKey)
+                textRenderer, editorX, yPos, editorWidth, ENTRY_HEIGHT - 2,
+                Text.translatable("entity_debugger.screen.edit", editingKey)
         );
 
         activeEditor.setText(value.asString());
@@ -1082,7 +1072,7 @@ public class EntityDebugScreen extends Screen {
 
     private void saveAllChanges() {
         if (!hasUnsavedChanges || modifiedValues.isEmpty()) {
-            showError("没有需要保存的修改");
+            showError(Text.translatable("entity_debugger.message.no_changes").getString());
             return;
         }
 
@@ -1096,19 +1086,23 @@ public class EntityDebugScreen extends Screen {
 
                 // 更新NBT
                 entityNbt.put(key, value);
-
-                // 即时同步到实体属性
-                syncToEntity(key, value);
+                EntityDebugger.LOGGER.info("保存键 {}: {}", key, value.asString());
             }
 
             // 读取回实体以确保所有更改生效
             entity.readNbt(entityNbt);
 
-            showSuccess("成功保存 " + modifiedValues.size() + " 处修改");
+            // 重新同步所有特殊标签到实体属性
+            for (Map.Entry<String, NbtElement> entry : modifiedValues.entrySet()) {
+                syncToEntity(entry.getKey(), entry.getValue());
+            }
+
+            showSuccess(Text.translatable("entity_debugger.message.save_all_success", modifiedValues.size()).getString());
             modifiedValues.clear();
             hasUnsavedChanges = false;
             reloadNbtData();
         } catch (Exception e) {
+            EntityDebugger.LOGGER.error("保存所有更改失败: {}", e.getMessage(), e);
             showError("保存失败: " + e.getMessage());
         }
     }
@@ -1214,11 +1208,43 @@ public class EntityDebugScreen extends Screen {
 
     private void saveEditedValue() {
         try {
-            if (editingKey == null || activeEditor == null) return;
+            if (editingKey == null || activeEditor == null) {
+                EntityDebugger.LOGGER.warn("保存失败: 没有活动的编辑器");
+                return;
+            }
 
             String input = activeEditor.getText().trim();
+            EntityDebugger.LOGGER.info("尝试保存键 {}: {}", editingKey, input);
+
             NbtElement original = nbtMap.get(editingKey);
+            if (original == null) {
+                EntityDebugger.LOGGER.warn("原始NBT元素不存在: {}", editingKey);
+                return;
+            }
+
+            // 特殊处理布尔值 - 允许true/false文本输入
+            if (original.getType() == NbtElement.BYTE_TYPE) {
+                if (input.equalsIgnoreCase("true")) {
+                    modifiedValues.put(editingKey, NbtByte.ONE);
+                    nbtMap.put(editingKey, NbtByte.ONE);
+                    hasUnsavedChanges = true;
+                    syncToEntity(editingKey, NbtByte.ONE);
+                    showSuccess(Text.translatable("entity_debugger.message.save_success", editingKey).getString());
+                    cleanupEditing();
+                    return;
+                } else if (input.equalsIgnoreCase("false")) {
+                    modifiedValues.put(editingKey, NbtByte.ZERO);
+                    nbtMap.put(editingKey, NbtByte.ZERO);
+                    hasUnsavedChanges = true;
+                    syncToEntity(editingKey, NbtByte.ZERO);
+                    showSuccess(Text.translatable("entity_debugger.message.save_success", editingKey).getString());
+                    cleanupEditing();
+                    return;
+                }
+            }
+
             NbtElement newValue = parseInputValue(input, original.getType());
+            EntityDebugger.LOGGER.info("解析成功: {}", newValue.asString());
 
             // 更新本地缓存
             modifiedValues.put(editingKey, newValue);
@@ -1228,8 +1254,9 @@ public class EntityDebugScreen extends Screen {
             // 即时同步到实体
             syncToEntity(editingKey, newValue);
 
-            showSuccess("保存成功: " + editingKey);
+            showSuccess(Text.translatable("entity_debugger.message.save_success", editingKey).getString());
         } catch (Exception e) {
+            EntityDebugger.LOGGER.error("保存失败: {}", e.getMessage(), e);
             showError("保存失败: " + e.getMessage());
         } finally {
             cleanupEditing();
@@ -1244,128 +1271,127 @@ public class EntityDebugScreen extends Screen {
                 throw new Exception("输入不能为空");
             }
 
-            if (expectedType == NbtElement.LIST_TYPE) {
-                return parseNbtList(input);
+            // 特殊处理布尔值
+            if (expectedType == NbtElement.BYTE_TYPE) {
+                if (input.equalsIgnoreCase("true") || input.equals("1")) {
+                    return NbtByte.ONE;
+                }
+                if (input.equalsIgnoreCase("false") || input.equals("0")) {
+                    return NbtByte.ZERO;
+                }
             }
 
-            // 根据期望类型进行预处理
+            // 对于基本类型，不使用StringNbtReader.parse()，而是手动解析
             switch (expectedType) {
+                case NbtElement.BYTE_TYPE:
+                    // 处理字节后缀 (b/B)
+                    if (input.endsWith("b") || input.endsWith("B")) {
+                        input = input.substring(0, input.length() - 1);
+                    }
+                    return NbtByte.of(Byte.parseByte(input));
+
+                case NbtElement.SHORT_TYPE:
+                    // 处理短整型后缀 (s/S)
+                    if (input.endsWith("s") || input.endsWith("S")) {
+                        input = input.substring(0, input.length() - 1);
+                    }
+                    return NbtShort.of(Short.parseShort(input));
+
+                case NbtElement.INT_TYPE:
+                    return NbtInt.of(Integer.parseInt(input));
+
+                case NbtElement.LONG_TYPE:
+                    // 处理长整型后缀 (l/L)
+                    if (input.endsWith("l") || input.endsWith("L")) {
+                        input = input.substring(0, input.length() - 1);
+                    }
+                    return NbtLong.of(Long.parseLong(input));
+
+                case NbtElement.FLOAT_TYPE:
+                    // 处理浮点数后缀 (f/F)
+                    if (input.endsWith("f") || input.endsWith("F")) {
+                        input = input.substring(0, input.length() - 1);
+                    }
+                    return NbtFloat.of(Float.parseFloat(input));
+
+                case NbtElement.DOUBLE_TYPE:
+                    // 处理双精度后缀 (d/D)
+                    if (input.endsWith("d") || input.endsWith("D")) {
+                        input = input.substring(0, input.length() - 1);
+                    }
+                    return NbtDouble.of(Double.parseDouble(input));
+
+                case NbtElement.STRING_TYPE:
+                    // 去除字符串引号（如果用户输入了）
+                    if (input.startsWith("\"") && input.endsWith("\"")) {
+                        input = input.substring(1, input.length() - 1);
+                    }
+                    return NbtString.of(input);
+
+                case NbtElement.LIST_TYPE:
+                    return parseNbtList(input);
 
                 case NbtElement.COMPOUND_TYPE:
                     // 自动补全复合标签格式
                     if (!input.startsWith("{")) input = "{" + input;
                     if (!input.endsWith("}")) input = input + "}";
-                    break;
+                    return StringNbtReader.parse(input);
 
                 case NbtElement.BYTE_ARRAY_TYPE:
-                    if (!input.startsWith("[B;")) input = "[B;" + input.substring(1);
-                    break;
+                    if (!input.startsWith("[B;")) input = "[B;" + input;
+                    if (!input.endsWith("]")) input = input + "]";
+                    return StringNbtReader.parse(input);
 
                 case NbtElement.INT_ARRAY_TYPE:
-                    if (!input.startsWith("[I;")) input = "[I;" + input.substring(1);
-                    break;
+                    if (!input.startsWith("[I;")) input = "[I;" + input;
+                    if (!input.endsWith("]")) input = input + "]";
+                    return StringNbtReader.parse(input);
 
                 case NbtElement.LONG_ARRAY_TYPE:
-                    if (!input.startsWith("[L;")) input = "[L;" + input.substring(1);
-                    break;
+                    if (!input.startsWith("[L;")) input = "[L;" + input;
+                    if (!input.endsWith("]")) input = input + "]";
+                    return StringNbtReader.parse(input);
+
+                default:
+                    throw new Exception("不支持的NBT类型: " + getTypeName(expectedType));
             }
-
-            // 特殊处理布尔值
-            if (expectedType == NbtElement.BYTE_TYPE) {
-                if (input.equalsIgnoreCase("true")) return NbtByte.ONE;
-                if (input.equalsIgnoreCase("false")) return NbtByte.ZERO;
-            }
-
-            // 解析NBT
-            NbtElement parsed;
-            try {
-                parsed = StringNbtReader.parse(input);
-            } catch (CommandSyntaxException e) {
-                // 提供更友好的错误信息
-                String msg = e.getMessage();
-                if (msg.contains("expected key")) {
-                    throw new Exception("复合标签缺少键名或冒号，正确格式: key: value");
-                } else if (msg.contains("at line") && msg.contains("column")) {
-                    throw new Exception("语法错误(行" +
-                            msg.substring(msg.indexOf("line") + 5, msg.indexOf(",")) +
-                            " 列" + msg.substring(msg.indexOf("column") + 7, msg.indexOf(")")) + ")");
-                } else if (msg.contains("Expected value")) {
-                    throw new Exception("缺少值或格式不正确");
-                } else if (msg.contains("Invalid escape sequence")) {
-                    throw new Exception("无效的转义字符");
-                }
-                throw new Exception("NBT格式错误: " + msg);
-            }
-
-            // 验证类型
-            if (parsed.getType() != expectedType) {
-                String expected = getTypeName(expectedType);
-                String actual = getTypeName(parsed.getType());
-
-                // 特殊处理字节数组/整数数组的混淆情况
-                if ((expectedType == NbtElement.BYTE_ARRAY_TYPE && parsed.getType() == NbtElement.INT_ARRAY_TYPE) ||
-                        (expectedType == NbtElement.INT_ARRAY_TYPE && parsed.getType() == NbtElement.BYTE_ARRAY_TYPE)) {
-                    throw new Exception("数组类型不匹配！需要 " + expected + " 但输入是 " + actual +
-                            "\n提示: 字节数组使用 [B;...]，整数数组使用 [I;...]");
-                }
-
-                throw new Exception("类型不匹配！需要 " + expected + " 但输入是 " + actual);
-            }
-
-            if (editingKey != null && SPECIAL_TAGS.contains(editingKey)) {
-                switch (editingKey) {
-                    case "Pos":
-                    case "Motion":
-                        if (!input.matches("\\[\\s*-?\\d+\\.?\\d*\\s*,\\s*-?\\d+\\.?\\d*\\s*,\\s*-?\\d+\\.?\\d*\\s*\\]")) {
-                            throw new Exception("需要3个坐标值，格式如: [x, y, z]");
-                        }
-                        break;
-
-                    case "Rotation":
-                        if (!input.matches("\\[\\s*-?\\d+\\.?\\d*\\s*,\\s*-?\\d+\\.?\\d*\\s*\\]")) {
-                            throw new Exception("需要2个角度值，格式如: [yaw, pitch]");
-                        }
-                        break;
-
-                    case "Health":
-                        if (!input.matches("-?\\d+\\.?\\d*")) {
-                            throw new Exception("需要生命值数字");
-                        }
-                        float health = Float.parseFloat(input);
-                        if (health <= 0) {
-                            throw new Exception("生命值必须大于0");
-                        }
-                        break;
-                }
-            }
-
-            return parsed;
         } catch (NumberFormatException e) {
-            throw new Exception("数字格式错误: " + e.getMessage());
+            throw new Exception(Text.translatable("entity_debugger.error.number_format", e.getMessage()).getString());
+        } catch (CommandSyntaxException e) {
+            // 提供更友好的错误信息
+            String msg = e.getMessage();
+            if (msg.contains("expected key")) {
+                throw new Exception(Text.translatable("entity_debugger.error.compound_missing_key").getString());
+            } else if (msg.contains("at line") && msg.contains("column")) {
+                throw new Exception(Text.translatable("entity_debugger.error.syntax_error",
+                        msg.substring(msg.indexOf("line") + 5, msg.indexOf(",")),
+                        msg.substring(msg.indexOf("column") + 7, msg.indexOf(")"))).getString());
+            } else if (msg.contains("Expected value")) {
+                throw new Exception(Text.translatable("entity_debugger.error.missing_value").getString());
+            } else if (msg.contains("Invalid escape sequence")) {
+                throw new Exception(Text.translatable("entity_debugger.error.invalid_escape").getString());
+            }
+            throw new Exception(Text.translatable("entity_debugger.error.nbt_format", msg).getString());
         } catch (Exception e) {
             // 添加额外上下文信息
-            throw new Exception("解析" + getTypeName(expectedType) + "时出错: " + e.getMessage());
+            throw new Exception(Text.translatable("entity_debugger.error.parse_failed", getTypeName(expectedType), e.getMessage()).getString());
         }
     }
 
     // 显示保存成功
     // 显示错误（红色）
     private void showError(String message) {
-        // 聊天栏消息
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if (player != null) {
-            player.sendMessage(Text.literal("§c[NBT错误] §f" + message), false);
+            player.sendMessage(Text.translatable("entity_debugger.message.error", message), false);
         }
-
-        EntityDebugger.LOGGER.error("NBT错误: {}", message);
+        EntityDebugger.LOGGER.error("NBT Error: {}", message);
     }
 
-    // 显示成功（绿色）
     private void showSuccess(String message) {
-        // 聊天栏消息
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if (player != null) {
-            player.sendMessage(Text.literal("§a[NBT] §f" + message), false);
+            player.sendMessage(Text.translatable("entity_debugger.message.success", message), false);
         }
     }
 
@@ -1377,22 +1403,22 @@ public class EntityDebugScreen extends Screen {
     }
 
     private String getTypeName(byte nbtType) {
-        return switch (nbtType) {
-            case NbtElement.END_TYPE -> "结束标签";
-            case NbtElement.BYTE_TYPE -> "字节/布尔";
-            case NbtElement.SHORT_TYPE -> "短整型";
-            case NbtElement.INT_TYPE -> "整数";
-            case NbtElement.LONG_TYPE -> "长整型";
-            case NbtElement.FLOAT_TYPE -> "浮点数";
-            case NbtElement.DOUBLE_TYPE -> "双精度";
-            case NbtElement.BYTE_ARRAY_TYPE -> "字节数组";
-            case NbtElement.STRING_TYPE -> "字符串";
-            case NbtElement.LIST_TYPE -> "列表";
-            case NbtElement.COMPOUND_TYPE -> "复合标签";
-            case NbtElement.INT_ARRAY_TYPE -> "整数数组";
-            case NbtElement.LONG_ARRAY_TYPE -> "长整型数组";
-            default -> "未知类型(" + nbtType + ")";
-        };
+        return Text.translatable("nbt.type." + switch (nbtType) {
+            case NbtElement.END_TYPE -> "end";
+            case NbtElement.BYTE_TYPE -> "byte";
+            case NbtElement.SHORT_TYPE -> "short";
+            case NbtElement.INT_TYPE -> "int";
+            case NbtElement.LONG_TYPE -> "long";
+            case NbtElement.FLOAT_TYPE -> "float";
+            case NbtElement.DOUBLE_TYPE -> "double";
+            case NbtElement.BYTE_ARRAY_TYPE -> "byte_array";
+            case NbtElement.STRING_TYPE -> "string";
+            case NbtElement.LIST_TYPE -> "list";
+            case NbtElement.COMPOUND_TYPE -> "compound";
+            case NbtElement.INT_ARRAY_TYPE -> "int_array";
+            case NbtElement.LONG_ARRAY_TYPE -> "long_array";
+            default -> "unknown";
+        }, nbtType).getString();
     }
 
 
@@ -1428,16 +1454,11 @@ public class EntityDebugScreen extends Screen {
     @Override
     public void close() {
         if (hasUnsavedChanges) {
-            // 显示确认对话框
             this.client.setScreen(new ConfirmScreen(confirmed -> {
-                if (confirmed) {
-                    saveAllChanges();
-                    super.close();
-                } else {
-                    super.close();
-                }
-            }, Text.literal("未保存的修改"),
-                    Text.literal("您有未保存的修改，是否要保存？")));
+                if (confirmed) saveAllChanges();
+                super.close();
+            }, Text.translatable("entity_debugger.dialog.unsaved_changes.title"),
+                    Text.translatable("entity_debugger.dialog.unsaved_changes.message")));
         } else {
             super.close();
         }
